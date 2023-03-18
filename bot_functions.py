@@ -15,6 +15,7 @@ answers = {
 def commands(message):
     if message.text == '/start':
         bot.send_message(message.chat.id, f'Привет, {message.chat.username}!')
+        bot.send_message(message.chat.id, text=read_file('msg_templates/start.html'), parse_mode='html')
     elif message.text == '/help':
         bot.send_message(message.chat.id, answers['help'])
     elif message.text == '/dog':
@@ -22,23 +23,24 @@ def commands(message):
         bot.send_photo(message.chat.id, photo=img)
 
 
-@bot.message_handler(commands=['button'])
+@bot.message_handler(commands=['weather'])
 def button_message(message):
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    btn1 = telebot.types.KeyboardButton('Поделиться номером телефона', request_contact=True)
-    btn2 = telebot.types.KeyboardButton('Поделиться локацией', request_location=True)
-    markup.add(btn1)
-    markup.add(btn2)
-    bot.send_message(message.chat.id, 'Хочешь поделиться телефоном или локацией?', reply_markup=markup)
+    btn = telebot.types.KeyboardButton('Поделиться локацией', request_location=True)
+    markup.add(btn)
+    bot.send_message(message.chat.id, 'Поделись со мной своей локацией, пожалуйста.', reply_markup=markup)
 
 
-@bot.message_handler(content_types=['contact', 'location'])
+@bot.message_handler(content_types=['location'])
 def contact(message):
-    if message.contact is not None:  # если в сообщении были отправлены контактные данные пользователя
-        print(message.contact)
-    elif message.location is not None:
-        city = get_city(message.location.latitude, message.location.longitude)
-        bot.send_message(message.chat.id, f'Your city is {city}')
+    if message.location is not None:
+        lat = message.location.latitude
+        long = message.location.longitude
+        city = get_city(lat, long)
+        msg = f'Твой город: {city["city"]}'
+        ans = get_forecast(lat, long)
+        bot.send_message(message.chat.id, msg)
+        bot.send_message(message.chat.id, ans)
 
 
 @bot.message_handler(content_types=['text'])  # декоратор
