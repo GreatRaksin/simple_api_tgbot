@@ -5,11 +5,6 @@ import os
 
 bot = telebot.TeleBot(os.environ.get('KEY'))
 
-answers = {
-    'git': 'Введи запрос для поиска в формате "GIT Запрос Язык_Программирования" и я дам тебе ссылки на 5 случайных репозиториев',
-    'help': 'Я умею искать по гитхабу и повторять слова за тобой. Чтобы узнать, как искать, напиши мне слово git',
-}
-
 
 @bot.message_handler(commands=['start', 'help', 'dog'])
 def commands(message):
@@ -17,7 +12,7 @@ def commands(message):
         bot.send_message(message.chat.id, f'Привет, {message.chat.username}!')
         bot.send_message(message.chat.id, text=read_file('msg_templates/start.html'), parse_mode='html')
     elif message.text == '/help':
-        bot.send_message(message.chat.id, answers['help'])
+        bot.send_message(message.chat.id, text=read_file('msg_templates/start.html'), parse_mode='html')
     elif message.text == '/dog':
         img = get_image()
         bot.send_photo(message.chat.id, photo=img)
@@ -40,7 +35,7 @@ def contact(message):
         msg = f'Твой город: {city["city"]}'
         ans = get_forecast(lat, long)
         bot.send_message(message.chat.id, msg)
-        bot.send_message(message.chat.id, ans)
+        bot.send_message(message.chat.id, text=ans, parse_mode='html')
 
 
 @bot.message_handler(content_types=['text'])  # декоратор
